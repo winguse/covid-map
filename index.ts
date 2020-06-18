@@ -191,9 +191,10 @@ for (const cityCode of Object.keys(city)) {
       }
       const geo = geoMap[fullName];
       if (!geo) {
-        console.log(`>> Cannot find ${fullName}`, level.data.level_name);
+        console.log(`>>>>> Cannot find ${fullName}`, level.data.level_name);
         continue;
       }
+      console.log(`${fullName}`, level.data.level_name);
       if (level.data.level_name === '低风险') continue;
       output.push({
         level: level.data.level_name,
