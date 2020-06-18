@@ -200,7 +200,6 @@ for (const cityCode of Object.keys(city)) {
         updateAt: level.data.end_update_time,
         geo,
       })
-      console.log(fullName, level.data);
     }
   }
 }
