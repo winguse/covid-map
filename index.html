@@ -12,6 +12,7 @@
       width: 100%;
       height: 100%;
     }
+
     #message {
       position: fixed;
       top: 0;
@@ -25,7 +26,11 @@
       z-index: 99999;
       text-align: center;
     }
-    #message a, #message a:active, #message a:visited, #message a:hover{
+
+    #message a,
+    #message a:active,
+    #message a:visited,
+    #message a:hover {
       text-decoration: none;
       color: red;
     }
@@ -129,7 +134,7 @@
       "高风险": '#ff2c2c',
     };
 
-    function add(info) {
+    function add(info, polygons) {
       var level = info.level;
 
       var paths = info.geo.points.split('|')
@@ -152,28 +157,30 @@
           zIndex: 50,
         });
 
-        polygon.on('mousemove', function() {
+        polygon.on('mousemove', function () {
           document.querySelector("#message a").innerHTML = `${info.geo.name}, ${level} (${info.updateAt})`;
           polygon.setOptions({ fillOpacity: 0.7 });
         })
 
 
-        polygon.on('mouseout', function() {
+        polygon.on('mouseout', function () {
           showDefault();
           polygon.setOptions({ fillOpacity: 0.4 });
         })
 
         map.add(polygon);
+        polygons.push(polygon);
       }
     }
 
     loadJSON(function (arr) {
+      var polygons = [];
       for (var i = 0; i < arr.length; i++) {
-        add(arr[i]);
+        add(arr[i], polygons);
       }
 
       // 缩放地图到合适的视野级别
-      map.setFitView([polygon])
+      map.setFitView(polygons)
     })
 
 
