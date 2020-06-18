@@ -133,6 +133,38 @@
       "高风险": '#ff2c2c',
     };
 
+
+    function addPolygon(path, polygons, info, level) {
+      var polygon = new AMap.Polygon({
+        path: path,
+        strokeColor: "#eee",
+        strokeWeight: 6,
+        strokeOpacity: 0.2,
+        fillOpacity: 0.4,
+        fillColor: colorMap[level],
+        zIndex: 50,
+      });
+
+      function on() {
+        document.querySelector("#message a").innerHTML = `${info.geo.name}, ${level} (${info.updateAt})`;
+        polygon.setOptions({ fillOpacity: 0.7 });
+      }
+
+      function out() {
+        showDefault();
+        polygon.setOptions({ fillOpacity: 0.4 });
+      }
+
+      polygon.on('mousemove', on);
+      polygon.on('touchmove', on);
+
+      polygon.on('mouseout', out);
+      polygon.on('touchend', out);
+
+      map.add(polygon);
+      polygons.push(polygon);
+    }
+
     function add(info, polygons) {
       var level = info.level;
 
@@ -143,32 +175,8 @@
             .map(([lon, lat]) => GPS.gcj_encrypt(lat, lon))
             .map(({ lon, lat }) => ([lon, lat]))
         );
-
       for (var path of paths) {
-
-        var polygon = new AMap.Polygon({
-          path: path,
-          strokeColor: "#eee",
-          strokeWeight: 6,
-          strokeOpacity: 0.2,
-          fillOpacity: 0.4,
-          fillColor: colorMap[level],
-          zIndex: 50,
-        });
-
-        polygon.on('mousemove', function () {
-          document.querySelector("#message a").innerHTML = `${info.geo.name}, ${level} (${info.updateAt})`;
-          polygon.setOptions({ fillOpacity: 0.7 });
-        })
-
-
-        polygon.on('mouseout', function () {
-          showDefault();
-          polygon.setOptions({ fillOpacity: 0.4 });
-        })
-
-        map.add(polygon);
-        polygons.push(polygon);
+        addPolygon(path, polygons, info, level);
       }
     }
 
