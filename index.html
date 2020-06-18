@@ -43,7 +43,7 @@
 
 <body>
   <div id="message">
-    <a href="http://bmfw.www.gov.cn/yqfxdjcx/index.html" target="_blank"></a>
+    <a href="http://bmfw.www.gov.cn/yqfxdjcx/index.html" target="_blank">加载中...</a>
   </div>
   <div id="container"></div>
   <script type="text/javascript">
@@ -116,7 +116,6 @@
       document.querySelector("#message a").innerHTML = `免责声明：数据每小时 10 分更新，仅供参考，不保证准确性，不提供任何形式保证，请以国家卫生健康委为准：http://bmfw.www.gov.cn/yqfxdjcx/index.html；行政区域数据来源天地图，仅供参考。`;
     }
 
-    showDefault();
 
     function parsePoint(input) {
       return input.split(',').map(v => +v);
@@ -188,6 +187,7 @@
 
       // 缩放地图到合适的视野级别
       map.setFitView(polygons)
+      showDefault();
     })
 
 
