@@ -1,3 +1,4 @@
+<!-- https://github.com/winguse/covid-map -->
 <!doctype html>
 <html>
 
@@ -6,11 +7,18 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="initial-scale=1.0, user-scalable=no, width=device-width">
   <style>
+    * {
+      box-sizing: border-box;
+    }
+
     html,
     body,
     #container {
       width: 100%;
       height: 100%;
+      touch-action: none;
+      position: relative;
+      overflow: hidden;
     }
 
     #message {
@@ -20,8 +28,8 @@
       width: 100%;
       background-color: rgba(236, 236, 28, 0.726);
       color: red;
-      line-height: 24px;
-      font-size: 18px;
+      line-height: 16px;
+      font-size: 14px;
       z-index: 99999;
       text-align: center;
     }
@@ -35,21 +43,21 @@
     }
   </style>
   <script>
-if(!(window.doNotTrack === "1" || navigator.doNotTrack === "1" || navigator.doNotTrack === "yes" || navigator.msDoNotTrack === "1")) {
-  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+    if (!(window.doNotTrack === "1" || navigator.doNotTrack === "1" || navigator.doNotTrack === "yes" || navigator.msDoNotTrack === "1")) {
+      (function (i, s, o, g, r, a, m) {
+        i['GoogleAnalyticsObject'] = r; i[r] = i[r] || function () {
+          (i[r].q = i[r].q || []).push(arguments)
+        }, i[r].l = 1 * new Date(); a = s.createElement(o),
+          m = s.getElementsByTagName(o)[0]; a.async = 1; a.src = g; m.parentNode.insertBefore(a, m)
+      })(window, document, 'script', 'https://www.google-analytics.com/analytics.js', 'ga');
 
-  ga('create', 'UA-7801267-7', 'auto');
-  ga('send', 'pageview');
-}
-</script>
-  <title>北京风险地图提示</title>
-  <link rel="stylesheet" href="https://a.amap.com/jsapi_demos/static/demo-center/css/demo-center.css" />
+      ga('create', 'UA-7801267-7', 'auto');
+      ga('send', 'pageview');
+    }
+  </script>
+  <title>北京疫情风险等级地图</title>
   <script
     src="https://webapi.amap.com/maps?v=1.4.15&key=7286873e274189a302599536d8dbba6c&plugin=AMap.PolyEditor"></script>
-  <script src="https://a.amap.com/jsapi_demos/static/demo-center/js/demoutils.js"></script>
 </head>
 
 <body>
@@ -124,9 +132,8 @@ if(!(window.doNotTrack === "1" || navigator.doNotTrack === "1" || navigator.doNo
     }
 
     function showDefault() {
-      document.querySelector("#message a").innerHTML = `免责声明：数据每小时 10 分更新，仅供参考，不保证准确性，不提供任何形式保证，请以国家卫生健康委为准：http://bmfw.www.gov.cn/yqfxdjcx/index.html；行政区域数据来源天地图，仅供参考。`;
+      document.querySelector("#message a").innerHTML = `免责声明：所有数据仅供参考，不保证准确性，不提供任何形式保证，不承担任何间接或直接责任。风险等级数据每整点过一刻从国家卫健委同步，请以国家卫健委为准：http://bmfw.www.gov.cn/yqfxdjcx/index.html ；地图为高德地图，行政区划数据来源天地图。`;
     }
-
 
     function parsePoint(input) {
       return input.split(',').map(v => +v);
