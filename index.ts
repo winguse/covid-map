@@ -214,4 +214,4 @@ for (const cityCode of Object.keys(city)) {
   }
 }
 
-await writeJson('./index.json', output);
+await writeJson('./index.json', output, { spaces: 2 });
