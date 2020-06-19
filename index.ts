@@ -124,6 +124,7 @@ const { city } = areas.filter(({allName}: any) => allName === province)[0];
 
 interface GeoData {
   rows: [{
+    GBCODE: string
     center: string
     points: string
     ASCRIPTION: string
@@ -134,6 +135,7 @@ interface GeoData {
 
 
 interface GeoInfo {
+  id: string
   center: string
   points: string
   fullName: string
@@ -149,6 +151,7 @@ const bj = (await readJson('./bj.json')) as GeoData;
 
 const geoMap = bj.rows.reduce<GeoMap>((acc, row) => {
   acc[row.ASCRIPTION] = {
+    id: row.GBCODE,
     fullName: row.ASCRIPTION,
     name: row.XZQH,
     center: row.center,
@@ -158,15 +161,18 @@ const geoMap = bj.rows.reduce<GeoMap>((acc, row) => {
 }, {});
 
 interface Result {
-  geo: GeoInfo
+  id?: string
+  cdcName: string
+  geoName: string
   updateAt: string
   level: string
+  syncAt: number
 }
 
 const output: Result[] = [];
 
 const renameMap: {[key in string]: string} = {
-  '北京市西城区清河街道': '北京市西城区清河街道????',
+  '北京市西城区清河街道': '北京市西城区清河街道（飞地无数据）',
   '北京市朝阳区常营乡': '北京市朝阳区常营回族乡',
   '北京市丰台区方庄街道': '北京市丰台区方庄地区',
   '北京市丰台区宛平城街道': '北京市丰台区宛平城地区',
@@ -185,24 +191,27 @@ for (const cityCode of Object.keys(city)) {
       const level = await getAreaLevel(s.county_code);
       assert(level.code === 0, level.msg);
       s.county_name = s.county_name.replace(/（.+?）/, '');
-      let fullName = [province, c.city_name, s.county_name].join('');
-      if (!!renameMap[fullName]) {
-        fullName = renameMap[fullName];
+      const cdcName = [province, c.city_name, s.county_name].join('');
+      let geoName = cdcName;
+      if (!!renameMap[geoName]) {
+        geoName = renameMap[geoName];
       }
-      const geo = geoMap[fullName];
-      if (!geo) {
-        console.log(`>>>>> Cannot find ${fullName}`, level.data.level_name);
-        continue;
-      }
-      console.log(`${fullName}`, level.data.level_name);
+      console.log(cdcName, geoName, level.data.level_name);
       if (level.data.level_name === '低风险') continue;
+      const geo = geoMap[geoName];
       output.push({
+        id: !!geo ? geo.id : undefined,
+        cdcName,
+        geoName,
         level: level.data.level_name,
         updateAt: level.data.end_update_time,
-        geo,
-      })
+        syncAt: Date.now(),
+      });
+      if (geo) {
+        await writeJson(`./geo.${geo.id}.json`, geo);
+      }
     }
   }
 }
 
-await writeJson('./output.json', output);
+await writeJson('./index.json', output);

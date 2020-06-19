@@ -34,7 +34,8 @@ jobs:
       run: |
         deno run --unstable --allow-net --allow-read --allow-write index.ts
         mkdir dist
-        cp output.json dist/
+        cp index.json dist/
+        cp geo.*.json dist/
         cp index.html dist/
 
     - name: Publish generated content to GitHub Pages

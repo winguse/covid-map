@@ -121,16 +121,8 @@
       }
     };
 
-    function loadJSON(callback) {
-      var xobj = new XMLHttpRequest();
-      xobj.overrideMimeType("application/json");
-      xobj.open('GET', 'output.json?' + Math.random(), true);
-      xobj.onreadystatechange = function () {
-        if (xobj.readyState == 4 && xobj.status == "200") {
-          callback(JSON.parse(xobj.responseText));
-        }
-      }
-      xobj.send(null);
+    function loadJSON(url) {
+      return fetch(url).then(res => res.json());
     }
 
     function showDefault() {
@@ -165,7 +157,7 @@
       });
 
       function on() {
-        document.querySelector("#message a").innerHTML = `${info.geo.name}, ${level} (${info.updateAt})`;
+        document.querySelector("#message a").innerHTML = `${info.cdcName}, ${level} <br>(卫健委更新时间：${info.updateAt}，最后同步时间：${new Date(info.syncAt).toLocaleString()})`;
         polygon.setOptions({ fillOpacity: 0.7 });
       }
 
@@ -199,16 +191,21 @@
       }
     }
 
-    loadJSON(function (arr) {
-      var polygons = [];
-      for (var i = 0; i < arr.length; i++) {
-        add(arr[i], polygons);
-      }
-
-      // 缩放地图到合适的视野级别
-      map.setFitView(polygons)
-      showDefault();
-    })
+    loadJSON('./index.json?' + Math.random())
+      .then(arr => {
+        var polygons = [];
+        Promise.all(
+          arr.map(i => loadJSON(`./geo.${i.id}.json`))
+        )
+          .then(geos => {
+            geos.forEach((geo, idx) => {
+              add({ geo, ...arr[idx] }, polygons);
+            })
+            // 缩放地图到合适的视野级别
+            map.setFitView(polygons)
+            showDefault();
+          })
+      })
 
 
 
