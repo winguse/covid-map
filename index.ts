@@ -2,6 +2,7 @@
 import { sha256 } from "https://deno.land/x/sha256@v1.0.2/mod.ts";
 import { assert } from "https://deno.land/std/testing/asserts.ts";
 import { readJson, writeJson } from "https://deno.land/std@0.51.0/fs/mod.ts";
+import { Result } from './index.d.ts';
 
 import areas from './areas.ts';
 
@@ -159,15 +160,6 @@ const geoMap = bj.rows.reduce<GeoMap>((acc, row) => {
   };
   return acc;
 }, {});
-
-interface Result {
-  id?: string
-  cdcName: string
-  geoName: string
-  updateAt: string
-  level: string
-  syncAt: number
-}
 
 const output: Result[] = [];
 

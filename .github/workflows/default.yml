@@ -46,3 +46,8 @@ jobs:
         github_token: ${{ secrets.ACCESS_TOKEN }}
 
 
+    - name: compact gh-pages history
+      run: |
+        deno run --unstable --allow-read --allow-write --allow-run --allow-env git-compact.ts
+      env:
+        ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
