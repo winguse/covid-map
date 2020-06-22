@@ -72,150 +72,179 @@
 
 <body>
   <div id="message">
-    <a href="http://bmfw.www.gov.cn/yqfxdjcx/index.html" target="_blank">加载中...</a>
+    <a href=""></a>
   </div>
   <div id="container"></div>
   <script type="text/javascript">
-    var GPS = {
-      PI: 3.14159265358979324,
-      x_pi: 3.14159265358979324 * 3000.0 / 180.0,
-      delta: function (lat, lon) {
-        // Krasovsky 1940
-        //
-        // a = 6378245.0, 1/f = 298.3
-        // b = a * (1 - f)
-        // ee = (a^2 - b^2) / a^2;
-        var a = 6378245.0; //  a: 卫星椭球坐标投影到平面地图坐标系的投影因子。
-        var ee = 0.00669342162296594323; //  ee: 椭球的偏心率。
-        var dLat = this.transformLat(lon - 105.0, lat - 35.0);
-        var dLon = this.transformLon(lon - 105.0, lat - 35.0);
-        var radLat = lat / 180.0 * this.PI;
-        var magic = Math.sin(radLat);
-        magic = 1 - ee * magic * magic;
-        var sqrtMagic = Math.sqrt(magic);
-        dLat = (dLat * 180.0) / ((a * (1 - ee)) / (magic * sqrtMagic) * this.PI);
-        dLon = (dLon * 180.0) / (a / sqrtMagic * Math.cos(radLat) * this.PI);
-        return { 'lat': dLat, 'lon': dLon };
-      },
 
-      //GPS---高德
-      gcj_encrypt: function (wgsLat, wgsLon) {
-        if (this.outOfChina(wgsLat, wgsLon))
-          return { 'lat': wgsLat, 'lon': wgsLon };
+    const cdc = 'http://bmfw.www.gov.cn/yqfxdjcx/index.html';
+    const govMap = 'http://beijing.tianditu.gov.cn/coronavirusmap/';
+    document.querySelector("#message a").href = govMap;
+    document.querySelector("#message").addEventListener('click', e => e.stopPropagation())
 
-        var d = this.delta(wgsLat, wgsLon);
-        return { 'lat': wgsLat + d.lat, 'lon': wgsLon + d.lon };
-      },
-      outOfChina: function (lat, lon) {
-        if (lon < 72.004 || lon > 137.8347)
-          return true;
-        if (lat < 0.8293 || lat > 55.8271)
-          return true;
-        return false;
-      },
-      transformLat: function (x, y) {
-        var ret = -100.0 + 2.0 * x + 3.0 * y + 0.2 * y * y + 0.1 * x * y + 0.2 * Math.sqrt(Math.abs(x));
-        ret += (20.0 * Math.sin(6.0 * x * this.PI) + 20.0 * Math.sin(2.0 * x * this.PI)) * 2.0 / 3.0;
-        ret += (20.0 * Math.sin(y * this.PI) + 40.0 * Math.sin(y / 3.0 * this.PI)) * 2.0 / 3.0;
-        ret += (160.0 * Math.sin(y / 12.0 * this.PI) + 320 * Math.sin(y * this.PI / 30.0)) * 2.0 / 3.0;
-        return ret;
-      },
-      transformLon: function (x, y) {
-        var ret = 300.0 + x + 2.0 * y + 0.1 * x * x + 0.1 * x * y + 0.1 * Math.sqrt(Math.abs(x));
-        ret += (20.0 * Math.sin(6.0 * x * this.PI) + 20.0 * Math.sin(2.0 * x * this.PI)) * 2.0 / 3.0;
-        ret += (20.0 * Math.sin(x * this.PI) + 40.0 * Math.sin(x / 3.0 * this.PI)) * 2.0 / 3.0;
-        ret += (150.0 * Math.sin(x / 12.0 * this.PI) + 300.0 * Math.sin(x / 30.0 * this.PI)) * 2.0 / 3.0;
-        return ret;
+    let countDownSeconds = 30;
+
+    const timer = setInterval(redir, 1000);
+    function  redir() {
+      document.querySelector("#message a").innerHTML = `由于北京市政府部门已经提供疫情风险地图，您将在 ${countDownSeconds} 秒自动后引导到该页面。<br>如果需要使用本页面，请点击空白部分。<br>如需立刻跳转，请点击这里。`;
+
+      if (countDownSeconds === 0) {
+        clearInterval(timer);
+        location.href = govMap;
       }
-    };
 
-    function loadJSON(url) {
-      return fetch(url).then(res => res.json());
+      countDownSeconds--;
     }
-
-    function showDefault() {
-      document.querySelector("#message a").innerHTML = `免责声明：所有数据仅供参考，不保证准确性，不提供任何形式保证，不承担任何间接或直接责任。风险等级数据每整点过一刻从国家卫健委同步，请以国家卫健委为准：http://bmfw.www.gov.cn/yqfxdjcx/index.html ；地图为高德地图，行政区划数据来源天地图。`;
-    }
-
-    function parsePoint(input) {
-      return input.split(',').map(v => +v);
-    }
-
-    var map = new AMap.Map("container", {
-      center: [116.400274, 39.905812],
-      zoom: 14
-    });
-
-    var colorMap = {
-      "低风险": '#9d9',
-      "中风险": '#ab39e4',
-      "高风险": '#ff2c2c',
-    };
+    redir()
 
 
-    function addPolygon(path, polygons, info, level) {
-      var polygon = new AMap.Polygon({
-        path: path,
-        strokeColor: "#eee",
-        strokeWeight: 6,
-        strokeOpacity: 0.2,
-        fillOpacity: 0.4,
-        fillColor: colorMap[level],
-        zIndex: 50,
+    document.body.addEventListener('click', main);
+
+    function main() {
+      clearInterval(timer);
+      document.body.removeEventListener('click', main);
+      document.querySelector("#message a").href = cdc;
+      document.querySelector("#message a").innerHTML = '加载中...';
+      var GPS = {
+        PI: 3.14159265358979324,
+        x_pi: 3.14159265358979324 * 3000.0 / 180.0,
+        delta: function (lat, lon) {
+          // Krasovsky 1940
+          //
+          // a = 6378245.0, 1/f = 298.3
+          // b = a * (1 - f)
+          // ee = (a^2 - b^2) / a^2;
+          var a = 6378245.0; //  a: 卫星椭球坐标投影到平面地图坐标系的投影因子。
+          var ee = 0.00669342162296594323; //  ee: 椭球的偏心率。
+          var dLat = this.transformLat(lon - 105.0, lat - 35.0);
+          var dLon = this.transformLon(lon - 105.0, lat - 35.0);
+          var radLat = lat / 180.0 * this.PI;
+          var magic = Math.sin(radLat);
+          magic = 1 - ee * magic * magic;
+          var sqrtMagic = Math.sqrt(magic);
+          dLat = (dLat * 180.0) / ((a * (1 - ee)) / (magic * sqrtMagic) * this.PI);
+          dLon = (dLon * 180.0) / (a / sqrtMagic * Math.cos(radLat) * this.PI);
+          return { 'lat': dLat, 'lon': dLon };
+        },
+
+        //GPS---高德
+        gcj_encrypt: function (wgsLat, wgsLon) {
+          if (this.outOfChina(wgsLat, wgsLon))
+            return { 'lat': wgsLat, 'lon': wgsLon };
+
+          var d = this.delta(wgsLat, wgsLon);
+          return { 'lat': wgsLat + d.lat, 'lon': wgsLon + d.lon };
+        },
+        outOfChina: function (lat, lon) {
+          if (lon < 72.004 || lon > 137.8347)
+            return true;
+          if (lat < 0.8293 || lat > 55.8271)
+            return true;
+          return false;
+        },
+        transformLat: function (x, y) {
+          var ret = -100.0 + 2.0 * x + 3.0 * y + 0.2 * y * y + 0.1 * x * y + 0.2 * Math.sqrt(Math.abs(x));
+          ret += (20.0 * Math.sin(6.0 * x * this.PI) + 20.0 * Math.sin(2.0 * x * this.PI)) * 2.0 / 3.0;
+          ret += (20.0 * Math.sin(y * this.PI) + 40.0 * Math.sin(y / 3.0 * this.PI)) * 2.0 / 3.0;
+          ret += (160.0 * Math.sin(y / 12.0 * this.PI) + 320 * Math.sin(y * this.PI / 30.0)) * 2.0 / 3.0;
+          return ret;
+        },
+        transformLon: function (x, y) {
+          var ret = 300.0 + x + 2.0 * y + 0.1 * x * x + 0.1 * x * y + 0.1 * Math.sqrt(Math.abs(x));
+          ret += (20.0 * Math.sin(6.0 * x * this.PI) + 20.0 * Math.sin(2.0 * x * this.PI)) * 2.0 / 3.0;
+          ret += (20.0 * Math.sin(x * this.PI) + 40.0 * Math.sin(x / 3.0 * this.PI)) * 2.0 / 3.0;
+          ret += (150.0 * Math.sin(x / 12.0 * this.PI) + 300.0 * Math.sin(x / 30.0 * this.PI)) * 2.0 / 3.0;
+          return ret;
+        }
+      };
+
+      function loadJSON(url) {
+        return fetch(url).then(res => res.json());
+      }
+
+      function showDefault() {
+        document.querySelector("#message a").innerHTML = `免责声明：所有数据仅供参考，不保证准确性，不提供任何形式保证，不承担任何间接或直接责任。风险等级数据每整点过一刻从国家卫健委同步，请以国家卫健委为准：http://bmfw.www.gov.cn/yqfxdjcx/index.html ；地图为高德地图，行政区划数据来源天地图。`;
+      }
+
+      function parsePoint(input) {
+        return input.split(',').map(v => +v);
+      }
+
+      var map = new AMap.Map("container", {
+        center: [116.400274, 39.905812],
+        zoom: 14
       });
 
-      function on() {
-        document.querySelector("#message a").innerHTML = `${info.cdcName}, ${level} <br>(卫健委更新时间：${info.updateAt}，最后同步时间：${new Date(info.syncAt).toLocaleString()})`;
-        polygon.setOptions({ fillOpacity: 0.7 });
+      var colorMap = {
+        "低风险": '#9d9',
+        "中风险": '#ab39e4',
+        "高风险": '#ff2c2c',
+      };
+
+
+      function addPolygon(path, polygons, info, level) {
+        var polygon = new AMap.Polygon({
+          path: path,
+          strokeColor: "#eee",
+          strokeWeight: 6,
+          strokeOpacity: 0.2,
+          fillOpacity: 0.4,
+          fillColor: colorMap[level],
+          zIndex: 50,
+        });
+
+        function on() {
+          document.querySelector("#message a").innerHTML = `${info.cdcName}, ${level} <br>(卫健委更新时间：${info.updateAt}，最后同步时间：${new Date(info.syncAt).toLocaleString()})`;
+          polygon.setOptions({ fillOpacity: 0.7 });
+        }
+
+        function out() {
+          showDefault();
+          polygon.setOptions({ fillOpacity: 0.4 });
+        }
+
+        polygon.on('mousemove', on);
+        polygon.on('touchstart', on);
+
+        polygon.on('mouseout', out);
+        polygon.on('touchend', out);
+
+        map.add(polygon);
+        polygons.push(polygon);
       }
 
-      function out() {
-        showDefault();
-        polygon.setOptions({ fillOpacity: 0.4 });
+      function add(info, polygons) {
+        var level = info.level;
+
+        var paths = info.geo.points.split('|')
+          .map(paths =>
+            paths.split(';')
+              .map(p => parsePoint(p))
+              .map(([lon, lat]) => GPS.gcj_encrypt(lat, lon))
+              .map(({ lon, lat }) => ([lon, lat]))
+          );
+        for (var path of paths) {
+          addPolygon(path, polygons, info, level);
+        }
       }
 
-      polygon.on('mousemove', on);
-      polygon.on('touchstart', on);
-
-      polygon.on('mouseout', out);
-      polygon.on('touchend', out);
-
-      map.add(polygon);
-      polygons.push(polygon);
-    }
-
-    function add(info, polygons) {
-      var level = info.level;
-
-      var paths = info.geo.points.split('|')
-        .map(paths =>
-          paths.split(';')
-            .map(p => parsePoint(p))
-            .map(([lon, lat]) => GPS.gcj_encrypt(lat, lon))
-            .map(({ lon, lat }) => ([lon, lat]))
-        );
-      for (var path of paths) {
-        addPolygon(path, polygons, info, level);
-      }
-    }
-
-    loadJSON('./index.json?' + Math.random())
-      .then(arr => {
-        var polygons = [];
-        Promise.all(
-          arr.map(i => loadJSON(`./geo.${i.id}.json`))
-        )
-          .then(geos => {
-            geos.forEach((geo, idx) => {
-              add({ geo, ...arr[idx] }, polygons);
+      loadJSON('./index.json?' + Math.random())
+        .then(arr => {
+          var polygons = [];
+          Promise.all(
+            arr.map(i => loadJSON(`./geo.${i.id}.json`))
+          )
+            .then(geos => {
+              geos.forEach((geo, idx) => {
+                add({ geo, ...arr[idx] }, polygons);
+              })
+              // 缩放地图到合适的视野级别
+              map.setFitView(polygons)
+              showDefault();
             })
-            // 缩放地图到合适的视野级别
-            map.setFitView(polygons)
-            showDefault();
-          })
-      })
+        })
 
-
+    }
 
   </script>
 </body>
