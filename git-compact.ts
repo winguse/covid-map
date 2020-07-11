@@ -1,4 +1,4 @@
-import { assert, equal } from "https://deno.land/std/testing/asserts.ts";
+import { assert, equal } from "https://deno.land/std@0.51.0/testing/asserts.ts";
 import { readJson, exists } from "https://deno.land/std@0.51.0/fs/mod.ts";
 import { Result } from './index.d.ts';
 

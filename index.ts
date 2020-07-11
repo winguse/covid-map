@@ -1,6 +1,6 @@
 
 import { sha256 } from "https://deno.land/x/sha256@v1.0.2/mod.ts";
-import { assert } from "https://deno.land/std/testing/asserts.ts";
+import { assert } from "https://deno.land/std@0.51.0/testing/asserts.ts";
 import { readJson, writeJson } from "https://deno.land/std@0.51.0/fs/mod.ts";
 import { Result } from './index.d.ts';
 
